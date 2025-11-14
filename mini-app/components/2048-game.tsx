@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Share } from "@/components/share";
 import { url } from "@/lib/metadata";
@@ -11,7 +11,7 @@ function createEmptyBoard() {
   return Array.from({ length: SIZE }, () => Array(SIZE).fill(0));
 }
 
-function addRandomTile(board) {
+function addRandomTile(board: number[][]): number[][] {
   const empty = [];
   for (let r = 0; r < SIZE; r++) {
     for (let c = 0; c < SIZE; c++) {
@@ -24,19 +24,19 @@ function addRandomTile(board) {
   return board;
 }
 
-function cloneBoard(board) {
+function cloneBoard(board: number[][]): number[][] {
   return board.map(row => [...row]);
 }
 
-function transpose(board) {
+function transpose(board: number[][]): number[][] {
   return board[0].map((_, i) => board.map(row => row[i]));
 }
 
-function reverseRows(board) {
+function reverseRows(board: number[][]): number[][] {
   return board.map(row => [...row].reverse());
 }
 
-function slideAndMerge(row) {
+function slideAndMerge(row: number[]): number[] {
   const filtered = row.filter(v => v !== 0);
   const merged = [];
   let skip = false;
@@ -53,7 +53,10 @@ function slideAndMerge(row) {
   return merged;
 }
 
-function move(board, direction) {
+function move(
+  board: number[][],
+  direction: "up" | "down" | "left" | "right"
+): { board: number[][]; moved: boolean } {
   let newBoard = cloneBoard(board);
   let moved = false;
   if (direction === "up") {
@@ -92,7 +95,7 @@ function move(board, direction) {
   return { board: newBoard, moved };
 }
 
-function hasMoves(board) {
+function hasMoves(board: number[][]): boolean {
   for (let r = 0; r < SIZE; r++) {
     for (let c = 0; c < SIZE; c++) {
       if (board[r][c] === 0) return true;
@@ -104,11 +107,12 @@ function hasMoves(board) {
 }
 
 export default function Game2048() {
-  const [board, setBoard] = useState(() => addRandomTile(addRandomTile(createEmptyBoard())));
-  const [score, setScore] = useState(0);
-  const [gameOver, setGameOver] = useState(false);
+  const [board, setBoard] = useState<number[][]>(() => addRandomTile(addRandomTile(createEmptyBoard())));
+  const [score, setScore] = useState<number>(0);
+  const [gameOver, setGameOver] = useState<boolean>(false);
 
-  const handleMove = (direction: "up" | "down" | "left" | "right") => {
+  const handleMove = useCallback(
+    (direction: "up" | "down" | "left" | "right") => {
     if (gameOver) return;
     const { board: newBoard, moved } = move(board, direction);
     if (!moved) return;
