@@ -132,7 +132,7 @@ export default function Game2048() {
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [board, gameOver]);
+  }, [board, gameOver, handleMove]);
 
   return (
     <div className="flex flex-col items-center gap-4">
